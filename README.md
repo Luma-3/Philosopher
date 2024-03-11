@@ -1,6 +1,8 @@
 # Philosopher
 
-![Philosopher](https://github.com/Luma-3/Philosopher/blob/main/img/philosopherse.png)
+<p align="center">
+  <img src="https://github.com/Luma-3/Philosopher/blob/main/img/philosopherse.png" alt="Philo"/>
+</p>
 
 ## Overview
 This project is a solo endeavor aimed at exploring the classic dining philosophers problem through implementation. It is estimated to require approximately 70 hours to complete.
