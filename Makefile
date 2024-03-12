@@ -6,7 +6,7 @@
 #    By: jbrousse <jbrousse@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/11 12:03:02 by jbrousse          #+#    #+#              #
-#    Updated: 2024/03/11 12:37:58 by jbrousse         ###   ########.fr        #
+#    Updated: 2024/03/12 14:36:29 by jbrousse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ CFLAGS = -Wall -Wextra -Werror -g3
 ##   INCLUDE   ##
 #################
 
-INCLUDE_LIST	=	./includes/
+INCLUDE_LIST	=	./philo/includes/
 INCLUDE			=	$(addprefix -I, $(INCLUDE_LIST))
 
 
@@ -29,16 +29,16 @@ INCLUDE			=	$(addprefix -I, $(INCLUDE_LIST))
 ##   SOURCES   ##
 #################
 
-SRC_DIR				=	sources/
+SRC_DIR				=	philo/sources/
 
-SRC_LIST			=
+SRC_LIST			= 	philo.c
 SRC					=	$(addprefix $(SRC_DIR), $(SRC_LIST))
 
 ##################
 ##   OBJ/NAME   ##
 ##################
 
-NAME		=	philo
+NAME		=	philo.out
 
 NORM_LOG	:=	norme_log
 
