@@ -6,7 +6,7 @@
 /*   By: jbrousse <jbrousse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 10:44:47 by jbrousse          #+#    #+#             */
-/*   Updated: 2024/03/14 17:42:34 by jbrousse         ###   ########.fr       */
+/*   Updated: 2024/03/15 16:13:32 by jbrousse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,9 @@ static void	take_fork(pthread_mutex_t *fork, struct timeval *start_time, int id)
 
 static void	eating(t_philo *philo, int time_to_eat, struct timeval *start_time, int id)
 {
-	struct timeval	time;
-
 	printf("%d %d is eating\n", take_timestamp(start_time), id);
+	gettimeofday(philo->start_time_strave, NULL);
 	usleep(time_to_eat * 1000);
-	gettimeofday(&time, NULL);
-	philo->start_time_strave = time;
 }
 
 static void	start_thinking(t_philo *philo)
@@ -50,7 +47,7 @@ void	*philo_routine(void *arg)
 	nb_eat = 0;
 	while (true)
 	{
-		if (nb_eat <= philo->nb_eat)
+		if (nb_eat >= philo->nb_eat)
 			break ;
 		start_thinking(philo);
 		eating(philo, philo->time_to_eat, philo->start_time, philo->id);
@@ -58,6 +55,13 @@ void	*philo_routine(void *arg)
 		pthread_mutex_unlock(philo->right_fork);
 		philo_sleep(philo->time_to_sleep, philo->start_time, philo->id);
 		nb_eat++;
+		pthread_mutex_lock(philo->check_dead);
+		if (*(philo->dead) == true)
+		{
+			pthread_mutex_unlock(philo->check_dead);
+			break ;
+		}
+		pthread_mutex_unlock(philo->check_dead);
 	}
 	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: jbrousse <jbrousse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 13:55:18 by jbrousse          #+#    #+#             */
-/*   Updated: 2024/03/14 17:31:30 by jbrousse         ###   ########.fr       */
+/*   Updated: 2024/03/15 14:17:01 by jbrousse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,15 @@
 typedef struct s_philo
 {
 	int				id;
-	struct timeval 	*start_time;
-	int				time_to_die;
+	struct timeval	*start_time;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				start_time_strave;
+	struct timeval	*start_time_strave;
 	int				nb_eat;
 	bool			*dead;
 	pthread_t		*thread;
-	pthread_mutex_t *right_fork;
-	pthread_mutex_t *left_fork;
+	pthread_mutex_t	*right_fork;
+	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*check_dead;
 }			t_philo;
 
@@ -49,10 +48,12 @@ typedef struct s_arg
 typedef struct s_stdthread
 {
 	int				nb_philo;
-	bool			*has_dead;
+	int				time_to_die;
+	bool			has_dead;
+	pthread_mutex_t	*forks;
 	t_philo			*philos;
 	t_arg			*args;
-	pthread_mutex_t *dead;
+	pthread_mutex_t	*dead;
 	pthread_mutex_t	*std_out;
 }					t_stdthread;
 

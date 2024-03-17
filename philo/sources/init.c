@@ -6,13 +6,13 @@
 /*   By: jbrousse <jbrousse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 13:50:52 by jbrousse          #+#    #+#             */
-/*   Updated: 2024/03/14 17:31:29 by jbrousse         ###   ########.fr       */
+/*   Updated: 2024/03/15 14:23:18 by jbrousse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	init_fork_mutex(pthread_mutex_t *forks, int nb_philo)
+static int	init_fork_mutex(pthread_mutex_t *forks, int nb_philo)
 {
 	int	i;
 
@@ -26,8 +26,10 @@ int	init_fork_mutex(pthread_mutex_t *forks, int nb_philo)
 	return (SUCCESS);
 }
 
-int	init_philo(t_philo *philos, t_stdthread *std, pthread_mutex_t *forks,
-		struct timeval *time)
+static int	init_philo(t_philo *philos,
+						t_stdthread *std,
+						pthread_mutex_t *forks,
+						struct timeval *time)
 {
 	int	i;
 
@@ -35,13 +37,14 @@ int	init_philo(t_philo *philos, t_stdthread *std, pthread_mutex_t *forks,
 	while (i < std->args->nb_philo)
 	{
 		philos[i].thread = malloc(sizeof(pthread_t));
-		if (!(philos[i].thread))
-			return (ENOMEM); // TODO free .thread
+		philos[i].start_time_strave = malloc(sizeof(struct timeval));
+		if (!(philos[i].thread) || !(philos[i].start_time_strave))
+			return (ENOMEM); // TODO free .thread amd .start_time_strave
+		gettimeofday(philos[i].start_time_strave, NULL);
 		philos[i].id = i;
 		philos[i].start_time = time;
-		philos[i].dead = std->has_dead;
+		philos[i].dead = &(std->has_dead);
 		philos[i].check_dead = std->dead;
-		philos[i].time_to_die = std->args->time_to_die;
 		philos[i].time_to_eat = std->args->time_to_eat;
 		philos[i].time_to_sleep = std->args->time_to_sleep;
 		philos[i].nb_eat = std->args->nb_eat;
@@ -52,15 +55,23 @@ int	init_philo(t_philo *philos, t_stdthread *std, pthread_mutex_t *forks,
 	return (SUCCESS);
 }
 
-int	init_data(t_philo **philos, pthread_mutex_t **forks, struct timeval *time,
-		int nb_philos)
+int	init_data(struct timeval *time, t_stdthread *std)
 {
-	*philos = (t_philo *)malloc(sizeof(t_philo) * nb_philos);
-	*forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * nb_philos);
+	t_philo			*philos;
+	pthread_mutex_t	*forks;
+
+	philos = (t_philo *)malloc(sizeof(t_philo) * std->nb_philo);
+	forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * std->nb_philo);
+	if (!philos || !forks)
+		return ((errno = ENOMEM), errno);
 	if (gettimeofday(time, NULL) != 0)
 		return (errno);
-	if (!(*philos) || !(*forks))
-		return ((errno = ENOMEM), errno);
+	if (init_fork_mutex(forks, std->nb_philo) != SUCCESS)
+		return (errno);
+	if (init_philo(philos, std, forks, time) != SUCCESS)
+		return (errno);
+	std->philos = philos;
+	std->forks = forks;
 	return (SUCCESS);
 }
 
@@ -71,7 +82,7 @@ int	launch_thread(t_philo *philos, int nb_philo)
 	i = 0;
 	while (i < nb_philo)
 	{
-		if (pthread_create(philos->thread, NULL, &philo_routine,
+		if (pthread_create(philos[i].thread, NULL, &philo_routine,
 				&philos[i]) != SUCCESS)
 			return (errno); //TODO Stop Thread
 		i++;

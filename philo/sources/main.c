@@ -6,7 +6,7 @@
 /*   By: jbrousse <jbrousse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 13:47:52 by jbrousse          #+#    #+#             */
-/*   Updated: 2024/03/14 17:38:05 by jbrousse         ###   ########.fr       */
+/*   Updated: 2024/03/17 22:51:24 by jbrousse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,34 +26,39 @@ int	take_timestamp(struct timeval *start_time)
 	return (time_sec * 1000 + time_usec / 1000);
 }
 
+void	free_mutex(int nb, pthread_mutex_t *forks)
+{
+	while (nb > 1)
+	{
+		free(&forks[nb - 1]);
+		nb--;
+	}
+}
+
 int	start_pb(t_arg *arg)
 {
-	t_philo			*philos;
-	pthread_mutex_t	*forks;
 	struct timeval	time;
 	t_stdthread		std;
-	bool			has_dead;
 	pthread_t		thread_checker;
+	pthread_mutex_t	dead_mutex;
 
-	philos = NULL;
-	forks = NULL;
-	if (init_data(&philos, &forks, &time, arg->nb_philo) != SUCCESS)
-		return (errno);
-	if (init_fork_mutex(forks, arg->nb_philo) != SUCCESS)
-		return (errno);
-	std.philos = philos;
-	pthread_mutex_init(std.dead, NULL);
-	std.has_dead = &has_dead;
 	std.args = arg;
 	std.nb_philo = arg->nb_philo;
-	if (init_philo(philos, &std, forks, &time) != SUCCESS)
+	std.has_dead = false;
+	std.dead = &dead_mutex;
+	std.time_to_die = arg->time_to_die;
+	pthread_mutex_init(std.dead, NULL);
+	if (init_data(&time, &std) != SUCCESS)
 		return (errno);
-	if (launch_thread(philos, arg->nb_philo) != SUCCESS)
+	if (launch_thread(std.philos, std.nb_philo) != SUCCESS)
 		return (errno);
 	pthread_create(&thread_checker, NULL, &routine_dead, &std);
-	wait_thread(philos, arg->nb_philo);
+	pthread_join(thread_checker, NULL);
+	wait_thread(std.philos, arg->nb_philo);
+	//free_mutex(std.nb_philo, std.forks);
 	return (SUCCESS);
 }
+
 
 int	main(int ac, char **av)
 {

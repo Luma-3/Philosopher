@@ -6,7 +6,7 @@
 /*   By: jbrousse <jbrousse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 14:07:53 by jbrousse          #+#    #+#             */
-/*   Updated: 2024/03/14 17:37:49 by jbrousse         ###   ########.fr       */
+/*   Updated: 2024/03/15 11:29:33 by jbrousse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,10 @@ void	*routine_dead(void *arg);
 
 int		take_timestamp(struct timeval *start_time);
 
-int		init_data(t_philo **philos, pthread_mutex_t **forks, struct timeval *time,
-			int nb_philos);
-
-int		init_philo(t_philo *philos, t_arg *args, pthread_mutex_t *forks,
-			struct timeval *time);
-
-int		init_fork_mutex(pthread_mutex_t *forks, int nb_philo);
-
 int		launch_thread(t_philo *philos, int nb_philo);
 
 void	wait_thread(t_philo *philos, int nb_philo);
+
+int		init_data(struct timeval *time, t_stdthread *std);
 
 #endif //PHILO_H
