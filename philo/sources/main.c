@@ -6,7 +6,7 @@
 /*   By: jbrousse <jbrousse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 13:47:52 by jbrousse          #+#    #+#             */
-/*   Updated: 2024/03/17 22:51:24 by jbrousse         ###   ########.fr       */
+/*   Updated: 2024/03/18 23:16:38 by jbrousse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,40 +35,36 @@ void	free_mutex(int nb, pthread_mutex_t *forks)
 	}
 }
 
-int	start_pb(t_arg *arg)
+int	start_dinner(t_arg *arg)
 {
-	struct timeval	time;
-	t_stdthread		std;
-	pthread_t		thread_checker;
-	pthread_mutex_t	dead_mutex;
+	t_philo			*philos;
+	t_mon_dead		*mon_dead;
+	t_mon_end		*mon_end;
+	bool			stop_mon;
 
-	std.args = arg;
-	std.nb_philo = arg->nb_philo;
-	std.has_dead = false;
-	std.dead = &dead_mutex;
-	std.time_to_die = arg->time_to_die;
-	pthread_mutex_init(std.dead, NULL);
-	if (init_data(&time, &std) != SUCCESS)
+	philos = init_philo(arg);
+	stop_mon = false;
+	mon_dead = init_mon_dead(arg, philos, &stop_mon);
+	mon_end = init_mon_end(arg, philos, &stop_mon);
+	philo_sync_mon(philos, mon_dead, mon_end);
+	if (launch_philo(philos, arg->nb_philo) != SUCCESS)
 		return (errno);
-	if (launch_thread(std.philos, std.nb_philo) != SUCCESS)
-		return (errno);
-	pthread_create(&thread_checker, NULL, &routine_dead, &std);
-	pthread_join(thread_checker, NULL);
-	wait_thread(std.philos, arg->nb_philo);
-	//free_mutex(std.nb_philo, std.forks);
+	pthread_create(mon_dead->thread, NULL, &dead_monitoring, mon_dead);
+	pthread_create(mon_end->thread, NULL, &end_monitoring, mon_end);
+	pthread_join(*(mon_end->thread), NULL);
+	pthread_join(*(mon_dead->thread), NULL);
 	return (SUCCESS);
 }
 
-
 int	main(int ac, char **av)
 {
-	t_arg	arg;
-	int		ret;
+	t_arg		arg;
+	int			ret;
 
 	ret = parser(ac, av, &arg);
 	if (ret != 0)
 		return (ret);
-	if (start_pb(&arg) != SUCCESS)
+	if (start_dinner(&arg) != SUCCESS)
 		return (errno);
 	return (0);
 }

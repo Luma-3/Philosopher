@@ -6,7 +6,7 @@
 #    By: jbrousse <jbrousse@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/11 12:03:02 by jbrousse          #+#    #+#              #
-#    Updated: 2024/03/14 15:09:29 by jbrousse         ###   ########.fr        #
+#    Updated: 2024/03/18 22:54:28 by jbrousse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,11 +31,12 @@ INCLUDE			=	$(addprefix -I, $(INCLUDE_LIST))
 
 SRC_DIR				=	sources/
 
-SRC_LIST			= 	main.c		\
-						parser.c	\
-						philo_obj.c	\
-						init.c		\
-						thread.c
+SRC_LIST			= 	init_monitor.c	\
+						init_philo.c	\
+						main.c			\
+						monitoring.c	\
+						parser.c		\
+						philo_obj.c
 SRC					=	$(addprefix $(SRC_DIR), $(SRC_LIST))
 
 ##################
